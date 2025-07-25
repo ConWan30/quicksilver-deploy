@@ -18,10 +18,10 @@ app.get('/ask', zValidator('query', askSchema), async (c) => {
 
   try {
     const llm = new ChatOpenAI({
-      model: 'grok-beta',
-      openAIApiKey: process.env.OPENAI_API_KEY,
+      model: 'grok',  // xAI model (standard Grok)
+      openAIApiKey: process.env.OPENAI_API_KEY,  // Your xAI key
       configuration: {
-        baseURL: 'https://api.x.ai/v1',
+        baseURL: 'https://api.x.ai/v1',  // xAI endpoint
       },
     });
 
