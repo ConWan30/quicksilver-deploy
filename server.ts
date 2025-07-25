@@ -4,7 +4,6 @@ import { logger } from 'hono/logger';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { PromptTemplate } from '@langchain/core/prompts';
 
 const app = new Hono();
 app.use('*', logger());
@@ -17,26 +16,29 @@ const askSchema = z.object({
 app.get('/ask', zValidator('query', askSchema), async (c) => {
   const { q } = c.req.valid('query');
 
-  const llm = new ChatOpenAI({
-    model: 'grok-beta',  // xAI model
-    openAIApiKey: process.env.OPENAI_API_KEY,  // Your xAI key
-    configuration: {
-      baseURL: 'https://api.x.ai/v1',  // xAI endpoint
-    },
-  });
-
   try {
-    const prompt = PromptTemplate.fromTemplate('Provide insights for gaming analytics: {query}');
-    const chain = prompt.pipe(llm);
-    const response = await chain.invoke({ query: q });
+    const llm = new ChatOpenAI({
+      model: 'grok-beta',
+      openAIApiKey: process.env.OPENAI_API_KEY,
+      configuration: {
+        baseURL: 'https://api.x.ai/v1',
+      },
+    });
+
+    const response = await llm.invoke(q);
     return c.json({ response: response.content });
   } catch (error) {
-    return c.json({ error: 'Internal Server Error' }, 500);
+    console.error('Error in /ask:', error);
+    return c.json({ error: 'Failed to process query', details: String(error) }, 500);
   }
 });
 
-const port = Number(process.env.PORT || 8080);  // Use Railway's PORT
-const host = '0.0.0.0';  // Bind to all interfaces
+app.get('/', async (c) => {
+  return c.json({ status: 'QuickSilver is running', version: '1.0.0' });
+});
+
+const port = Number(process.env.PORT || 8080);
+const host = '0.0.0.0';
 console.log(`Server running on ${host}:${port}`);
 
 export default {
