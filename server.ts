@@ -35,10 +35,12 @@ app.get('/ask', zValidator('query', askSchema), async (c) => {
   }
 });
 
-const port = Number(process.env.SERVER_PORT || 8000);
-console.log(`Server running on port ${port}`);
+const port = Number(process.env.PORT || 8080);  // Use Railway's PORT
+const host = '0.0.0.0';  // Bind to all interfaces
+console.log(`Server running on ${host}:${port}`);
 
 export default {
   port,
+  host,
   fetch: app.fetch,
 };
